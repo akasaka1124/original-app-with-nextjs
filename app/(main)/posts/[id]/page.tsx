@@ -2,7 +2,8 @@ import BreadCrumbs from "@/components/layouts/bread-crumbs";
 import Image from "next/image";
 import Link from "next/link";
 
-export default async function Page() {
+export default async function Page({ params }: { params: { id: string } }) {
+  console.log(params.id);
   const post = {
     id: 1,
     caption: "我が家の愛犬🐾",
