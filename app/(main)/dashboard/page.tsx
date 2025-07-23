@@ -1,4 +1,6 @@
 import BreadCrumbs from "@/components/layouts/bread-crumbs";
+import IconSkeleton from "@/components/skeletons/icon-skeleton";
+import { fetchDashboard } from "@/lib/apis";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -11,26 +13,39 @@ export default function Page() {
   );
 }
 
-function Dashboard() {
+async function Dashboard() {
+  const user = await fetchDashboard();
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mt-8 flex bg-white p-4">
-        <Image
-          className="block aspect-[1/1] size-24 rounded-full object-cover"
-          src="/dogs/dog_1.jpg"
-          width={96}
-          height={96}
-          alt="user icon"
-        />
+        {user.image && (
+          <Image
+            className="block aspect-[1/1] size-24 rounded-full object-cover"
+            src={user.image}
+            width={96}
+            height={96}
+            alt="user icon"
+          />
+        )}
+        {!!user.image || <IconSkeleton />}
         <div className="pl-4">
-          <p className="text-lg font-semibold text-black">user+1</p>
-          <p className="whitespace-pre-wrap font-medium">
-            こんにちは🐶
-            <br />
-            よろしくお願いします🐕
-          </p>
+          <p className="text-lg font-semibold text-black">{user.name}</p>
+          {user.description && (
+            <p className="whitespace-pre-wrap font-medium">
+              {user.description}
+            </p>
+          )}
+          {!!user.description || (
+            <p className="whitespace-pre-wrap text-sm opacity-20">
+              🐾🐾🐾 「プロフィールを編集」から
+              <br />
+              自己紹介を入力しましょう 🐾🐾🐾
+            </p>
+          )}
           <div className="mt-4 flex">
-            <p className="text-sm font-semibold text-black">投稿10件</p>
+            <p className="text-sm font-semibold text-black">
+              投稿{user.posts.length}件
+            </p>
             <Link
               href="/profile"
               className="ml-2 rounded border px-2 text-sm font-semibold text-black"
@@ -41,22 +56,20 @@ function Dashboard() {
         </div>
       </div>
       <div className="my-8 grid grid-cols-3 gap-1 bg-white">
-        {[...Array(10)]
-          .map((_, i) => i + 1)
-          .map((i) => {
-            return (
-              <Link href={`/posts/${i}/edit`} key={i}>
-                <Image
-                  key={i}
-                  className="aspect-[1/1] w-full object-cover"
-                  src={`/dogs/dog_${i}.jpg`}
-                  alt="post"
-                  width={300}
-                  height={300}
-                />
-              </Link>
-            );
-          })}
+        {user.posts.map((post) => {
+          return (
+            <Link href={`/posts/${post.id}/edit`} key={post.id}>
+              <Image
+                key={post.id}
+                className="aspect-[1/1] w-full object-cover"
+                src={post.image}
+                alt="post"
+                width={300}
+                height={300}
+              />
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

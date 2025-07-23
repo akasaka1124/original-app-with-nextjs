@@ -1,4 +1,5 @@
 import BreadCrumbs from "@/components/layouts/bread-crumbs";
+import { fetchUsers } from "@/lib/apis";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -11,41 +12,45 @@ export default function Page() {
   );
 }
 
-function Users() {
+async function Users() {
+  const users = await fetchUsers();
+  console.log(users);
   return (
     <div className="mx-auto my-8 max-w-5xl bg-white shadow-sm">
       <div className="grid grid-cols-1 gap-1  lg:grid-cols-2">
-        {[...Array(10)]
-          .map((_, i) => i + 1)
-          .map((i) => {
-            return (
-              <Link href={`/users/${i}`} key={i}>
-                <div className="flex bg-white p-4">
+        {users.map((user) => {
+          return (
+            <Link href={`/users/${user.id}`} key={user.id}>
+              <div className="flex bg-white p-4">
+                {user.image && (
                   <Image
-                    src="/dogs/dog_11.jpg"
-                    className="block aspect-[1/1] rounded-full object-cover"
+                    className="block aspect-[1/1] size-12 rounded-full object-cover"
+                    src={user.image}
                     width={96}
                     height={96}
                     alt="user icon"
                   />
-
-                  <div className="pl-4">
-                    <div>
-                      <p className="text-lg font-semibold text-black">user+1</p>
-                      <p className="whitespace-pre-wrap font-medium">
-                        こんにちは🐶よろしくお願いします🐕
+                )}
+                <div className="pl-4">
+                  <div>
+                    <p className="text-lg font-semibold text-black">
+                      {user.name}
+                    </p>
+                    <p className="whitespace-pre-wrap font-medium">
+                      {user.description}
+                    </p>
+                    <div className="mt-4 flex">
+                      <p className="text-sm font-semibold text-black">
+                        投稿{user._count.posts}件、コメント
+                        {user._count.comments}件
                       </p>
-                      <div className="mt-4 flex">
-                        <p className="text-sm font-semibold text-black">
-                          投稿10件
-                        </p>
-                      </div>
                     </div>
                   </div>
                 </div>
-              </Link>
-            );
-          })}
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

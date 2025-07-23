@@ -1,44 +1,25 @@
 import BreadCrumbs from "@/components/layouts/bread-crumbs";
+import { fetchPost } from "@/lib/apis";
 import Image from "next/image";
 import Link from "next/link";
 
 export default async function Page({ params }: { params: { id: string } }) {
   console.log(params.id);
-  const post = {
-    id: 1,
-    caption: "我が家の愛犬🐾",
-    image: "/dogs/dog_1.jpg",
-    createdAt: new Date(),
-    user: {
-      id: 1,
-      name: "user+10",
-      image: "/dogs/dog_10.jpg",
-      description: "こんにちは🐶よろしくお願いします🐕",
-    },
-    comments: [
-      {
-        id: 1,
-        text: "かわいい😍",
-        createdAt: new Date(),
-        user: {
-          name: "user+11",
-          image: "/dogs/dog_8.jpg",
-        },
-      },
-    ],
-  };
+  const post = await fetchPost(params.id);
   return (
     <>
       <BreadCrumbs title="投稿詳細 🐾" />
       <div className="mx-auto max-w-5xl">
         <div className="mt-8 grid grid-cols-1 gap-1 bg-white md:grid-cols-2">
-          <Image
-            className="aspect-[1/1] w-full object-cover"
-            src={post.image}
-            width={640}
-            height={640}
-            alt="post"
-          />
+          {post.image && (
+            <Image
+              className="aspect-[1/1] w-full object-cover"
+              src={post.image}
+              width={640}
+              height={640}
+              alt="post"
+            />
+          )}
           <div className="p-2">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">オーナー</h3>

@@ -1,13 +1,9 @@
 import BreadCrumbs from "@/components/layouts/bread-crumbs";
 import ProfileEditForm from "@/components/pages/profile/profile-form";
+import { fetchMe } from "@/lib/apis";
 
 export default async function Page() {
-  const user = {
-    name: "user+1",
-    email: "user+1@example.com",
-    image: null,
-    description: "こんにちは🐶よろしくお願いします🐕",
-  };
+  const user = await fetchMe();
   return (
     <>
       <BreadCrumbs title="プロフィール編集 🐾" />

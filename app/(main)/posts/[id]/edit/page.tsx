@@ -1,18 +1,10 @@
 import BreadCrumbs from "@/components/layouts/bread-crumbs";
+import { fetchPost } from "@/lib/apis";
 import Image from "next/image";
 import Link from "next/link";
 
-export default async function Page() {
-  const post = {
-    id: 1,
-    caption: "我が家の愛犬🐾",
-    image: "/dogs/dog_1.jpg",
-    user: {
-      name: "user+10",
-      image: "/dogs/dog_10.jpg",
-      description: "こんにちは🐶よろしくお願いします🐕",
-    },
-  };
+export default async function Page({ params }: { params: { id: string } }) {
+  const post = await fetchPost(params.id);
   return (
     <>
       <BreadCrumbs title="投稿編集 🐾" />
@@ -68,7 +60,7 @@ export default async function Page() {
                   href={`/posts/${post.id}`}
                   className="ml-4 rounded border p-2 text-xs"
                 >
-                  投稿画面へ
+                  投稿詳細へ
                 </Link>
               </div>
             </form>

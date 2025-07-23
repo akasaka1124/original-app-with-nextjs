@@ -1,23 +1,20 @@
 import BreadCrumbs from "@/components/layouts/bread-crumbs";
+import { fetchUser } from "@/lib/apis";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function Page() {
+export default function Page({ params }: { params: { id: string } }) {
   return (
     <>
       <BreadCrumbs title="オーナー 🐾" />
-      <UserDetail />
+      <UserDetail params={params} />
     </>
   );
 }
 
-async function UserDetail() {
-  const user = {
-    name: "user+1",
-    image: "/dogs/dog_1.jpg",
-    description: "こんにちは🐶よろしくお願いします🐕",
-    posts: [{ id: 1, image: "/dogs/dog_2.jpg" }],
-  };
+async function UserDetail({ params }: { params: { id: string } }) {
+  const user = await fetchUser(params.id);
+  console.log(user);
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mt-8 flex bg-white p-4">
@@ -46,13 +43,15 @@ async function UserDetail() {
           {user.posts.map((post) => {
             return (
               <Link href={`/posts/${post.id}`} key={post.id}>
-                <Image
-                  className="aspect-[1/1] w-full object-cover"
-                  src={post.image}
-                  width={400}
-                  height={400}
-                  alt="user icon"
-                />
+                {post.image && (
+                  <Image
+                    className="aspect-[1/1] w-full object-cover"
+                    src={post.image}
+                    width={400}
+                    height={400}
+                    alt="user icon"
+                  />
+                )}
               </Link>
             );
           })}
