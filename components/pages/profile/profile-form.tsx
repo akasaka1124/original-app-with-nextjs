@@ -1,3 +1,5 @@
+import { updateMe } from "@/lib/actions";
+
 export default function ProfileEditForm({
   user,
 }: {
@@ -9,7 +11,7 @@ export default function ProfileEditForm({
   };
 }) {
   return (
-    <form className="relative mt-6 space-y-6">
+    <form action={updateMe} className="relative mt-6 space-y-6">
       <div>
         <label
           className="block text-sm font-medium text-gray-700"

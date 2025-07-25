@@ -1,8 +1,9 @@
+import { registerUser } from "@/lib/actions";
 import Link from "next/link";
 
 export default function RegisterForm() {
   return (
-    <form>
+    <form action={registerUser}>
       <div>
         <label className="block text-sm font-medium text-gray-700">
           ユーザ名
