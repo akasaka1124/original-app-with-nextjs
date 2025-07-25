@@ -1,6 +1,8 @@
+import { createPost } from "@/lib/actions";
+
 export default function PostsCreateForm() {
   return (
-    <form className="mt-8 bg-white p-4">
+    <form className="mt-8 bg-white p-4" action={createPost}>
       <label className="mb-2 block text-sm font-medium text-gray-700">
         画像
       </label>
