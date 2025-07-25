@@ -4,9 +4,14 @@ import { fetchPost } from "@/lib/apis";
 import Image from "next/image";
 import Link from "next/link";
 
-export default async function Page({ params }: { params: { id: string } }) {
-  const post = await fetchPost(params.id);
-  const createCommentWithId = createComment.bind(null, params.id);
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const post = await fetchPost(id);
+  const createCommentWithId = createComment.bind(null, id);
   return (
     <>
       <BreadCrumbs title="投稿詳細 🐾" />

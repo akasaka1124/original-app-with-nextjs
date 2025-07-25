@@ -3,7 +3,7 @@ import { fetchUser } from "@/lib/apis";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function Page({ params }: { params: { id: string } }) {
+export default function Page({ params }: { params: Promise<{ id: string }> }) {
   return (
     <>
       <BreadCrumbs title="オーナー 🐾" />
@@ -12,8 +12,9 @@ export default function Page({ params }: { params: { id: string } }) {
   );
 }
 
-async function UserDetail({ params }: { params: { id: string } }) {
-  const user = await fetchUser(params.id);
+async function UserDetail({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const user = await fetchUser(id);
   console.log(user);
   return (
     <div className="mx-auto max-w-5xl">

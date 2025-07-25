@@ -4,10 +4,15 @@ import { fetchPost } from "@/lib/apis";
 import Image from "next/image";
 import Link from "next/link";
 
-export default async function Page({ params }: { params: { id: string } }) {
-  const post = await fetchPost(params.id);
-  const updatePostWithId = updatePost.bind(null, params.id);
-  const deletePostWithId = deletePost.bind(null, params.id);
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const post = await fetchPost(id);
+  const updatePostWithId = updatePost.bind(null, id);
+  const deletePostWithId = deletePost.bind(null, id);
   return (
     <>
       <BreadCrumbs title="投稿編集 🐾" />
