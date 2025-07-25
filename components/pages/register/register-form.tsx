@@ -1,3 +1,4 @@
+"use client";
 import { registerUser } from "@/lib/actions";
 import Link from "next/link";
 
