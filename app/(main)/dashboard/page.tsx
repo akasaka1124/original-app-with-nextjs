@@ -1,14 +1,18 @@
 import BreadCrumbs from "@/components/layouts/bread-crumbs";
 import IconSkeleton from "@/components/skeletons/icon-skeleton";
+import UserSkeleton from "@/components/skeletons/user-skeleton";
 import { fetchDashboard } from "@/lib/apis";
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 
 export default function Page() {
   return (
     <>
       <BreadCrumbs title="ダッシュボード 🐾" />
-      <Dashboard />
+      <Suspense fallback={<UserSkeleton />}>
+        <Dashboard />
+      </Suspense>
     </>
   );
 }

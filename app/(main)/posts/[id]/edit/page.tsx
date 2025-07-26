@@ -54,9 +54,8 @@ export default async function Page({
                 name="caption"
                 rows={8}
                 className="mt-2 w-full rounded border border-gray-300 p-2.5 focus:border-blue-500 focus:ring-blue-500"
-              >
-                {post.caption}
-              </textarea>
+                defaultValue={post.caption}
+              ></textarea>
               <div className="mt-4 flex items-center">
                 <button
                   className="inline-flex items-center rounded-md border border-transparent bg-gray-800 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white transition duration-150 ease-in-out hover:bg-gray-700 focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-gray-900"

@@ -95,13 +95,19 @@ export async function updateMe(formData: FormData) {
   const user = await prisma.user.findFirstOrThrow({
     where: { email: currentEmail },
   });
-  console.log(user);
   const data = {
     name: formData.get("name") as string,
-    // email: formData.get("email") as string,
     description: formData.get("description") as string,
     image: user.image,
   };
+  const imageFile = formData.get("image") as File;
+  if (imageFile.size > 0) {
+    const blob = await put(imageFile.name, imageFile, {
+      access: "public",
+      addRandomSuffix: true, // Ensure unique file names
+    });
+    data.image = blob.url;
+  }
 
   await prisma.user.update({
     where: { id: user.id },

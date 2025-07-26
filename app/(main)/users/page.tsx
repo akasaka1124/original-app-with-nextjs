@@ -1,20 +1,23 @@
 import BreadCrumbs from "@/components/layouts/bread-crumbs";
+import UsersSkeleton from "@/components/skeletons/users-skeleton";
 import { fetchUsers } from "@/lib/apis";
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 
 export default function Page() {
   return (
     <>
       <BreadCrumbs title="オーナー一覧 🐾" />
-      <Users />
+      <Suspense fallback={<UsersSkeleton />}>
+        <Users />
+      </Suspense>
     </>
   );
 }
 
 async function Users() {
   const users = await fetchUsers();
-  console.log(users);
   return (
     <div className="mx-auto my-8 max-w-5xl bg-white shadow-sm">
       <div className="grid grid-cols-1 gap-1  lg:grid-cols-2">

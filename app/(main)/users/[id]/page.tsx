@@ -1,13 +1,17 @@
 import BreadCrumbs from "@/components/layouts/bread-crumbs";
+import UserSkeleton from "@/components/skeletons/user-skeleton";
 import { fetchUser } from "@/lib/apis";
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
   return (
     <>
       <BreadCrumbs title="オーナー 🐾" />
-      <UserDetail params={params} />
+      <Suspense fallback={<UserSkeleton />}>
+        <UserDetail params={params} />
+      </Suspense>
     </>
   );
 }
@@ -15,7 +19,6 @@ export default function Page({ params }: { params: Promise<{ id: string }> }) {
 async function UserDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const user = await fetchUser(id);
-  console.log(user);
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mt-8 flex bg-white p-4">
