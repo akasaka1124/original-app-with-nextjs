@@ -5,22 +5,67 @@ import { put } from "@vercel/blob";
 import bcrypt from "bcrypt";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 
-export async function registerUser(formData: FormData) {
-  const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const passwordConfirmation = formData.get("passwordConfirmation") as string;
+const RegisterUserSchema = z
+  .object({
+    name: z.string().min(1, "ユーザ名は必須です。"),
+    email: z.string().email("メールアドレスの形式が正しくありません。"),
+    password: z.string().min(8, "パスワードは8文字以上で設定してください。"),
+    passwordConfirmation: z
+      .string()
+      .min(8, "確認用パスワードは8文字以上で設定してください。"),
+  })
+  .refine(
+    (args) => {
+      const { password, passwordConfirmation } = args;
+      return password === passwordConfirmation;
+    },
+    {
+      message: "パスワードと確認用パスワードが一致しません。",
+      path: ["passwordConfirmation"],
+    },
+  )
+  .refine(
+    async (args) => {
+      const { email } = args;
+      const user = await prisma.user.findFirst({ where: { email } });
+      return !user;
+    },
+    {
+      message: "このメールアドレスはすでに使われています。",
+      path: ["email"],
+    },
+  );
+type RegisterUserState = {
+  errors?: {
+    name?: string[];
+    email?: string[];
+    password?: string[];
+    passwordConfirmation?: string[];
+  };
+  message?: string | null;
+};
 
-  const user = await prisma.user.findFirst({ where: { email } });
+export async function registerUser(
+  _state: RegisterUserState,
+  formData: FormData,
+): Promise<RegisterUserState> {
+  const validatedFields = await RegisterUserSchema.safeParseAsync({
+    name: formData.get("name"),
+    email: formData.get("email"),
+    password: formData.get("password"),
+    passwordConfirmation: formData.get("passwordConfirmation"),
+  });
 
-  if (user) {
-    return "このメールアドレスはすでに使われています。";
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "ユーザー登録に失敗しました。",
+    };
   }
 
-  if (password != passwordConfirmation) {
-    return "パスワードと確認用パスワードが一致しません。";
-  }
+  const { name, email, password } = validatedFields.data;
 
   const bcryptedPassword = await bcrypt.hash(password, 10);
   try {
@@ -31,9 +76,13 @@ export async function registerUser(formData: FormData) {
         password: bcryptedPassword,
       },
     });
+    return {
+      errors: {},
+      message: "ユーザー登録に成功しました。",
+    };
   } catch (error) {
     console.error(error);
-    return "新規登録に失敗しました。";
+    throw new Error("ユーザー登録に失敗しました。");
   }
 }
 

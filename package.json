@@ -23,8 +23,10 @@
     "bcrypt": "^5.1.1",
     "clsx": "^2.1.1",
     "next": "^15.4.4",
+    "next-auth": "^5.0.0-beta.29",
     "react": "^19.0.0-rc-f65ac7bd-20240826",
-    "react-dom": "^19.0.0-rc-f65ac7bd-20240826"
+    "react-dom": "^19.0.0-rc-f65ac7bd-20240826",
+    "zod": "^4.0.10"
   },
   "devDependencies": {
     "@types/node": "^20.16.2",
