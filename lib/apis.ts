@@ -1,7 +1,11 @@
+import { auth } from "@/auth";
 import prisma from "@/lib/prisma";
 
 export async function fetchDashboard() {
-  const email = "user+1@example.com";
+  const session = await auth();
+  //sessionの取得をすることができる
+  if (!session?.user?.email) throw new Error("Invalid Request");
+  const email = session.user.email;
   try {
     return await prisma.user.findFirstOrThrow({
       where: { email },
@@ -135,7 +139,10 @@ export async function fetchUser(id: string) {
 }
 
 export async function fetchMe() {
-  const email = "user+1@example.com";
+  const session = await auth();
+  //sessionの取得をすることができる
+  if (!session?.user?.email) throw new Error("Invalid Request");
+  const email = session.user.email;
   try {
     return await prisma.user.findFirstOrThrow({
       where: { email },

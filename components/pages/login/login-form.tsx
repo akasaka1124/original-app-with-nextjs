@@ -1,8 +1,19 @@
+"use client";
+import Loader from "@/components/loaders/loader";
+import { authenticate } from "@/lib/actions";
+import clsx from "clsx";
 import Link from "next/link";
+import { useActionState } from "react";
 
 export default function LoginForm() {
+  const [error, action, isPending] = useActionState(authenticate, undefined);
   return (
-    <form>
+    <form
+      action={action}
+      noValidate
+      className={clsx("relative", { "opacity-20": isPending })}
+    >
+      {error && <p className="mb-4 text-xs text-red-500">{error}</p>}
       <div>
         <label className="block text-sm font-medium text-gray-700">
           メールアドレス
@@ -37,6 +48,7 @@ export default function LoginForm() {
           ログイン
         </button>
       </div>
+      {isPending && <Loader />}
     </form>
   );
 }

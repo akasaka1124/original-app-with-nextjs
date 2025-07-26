@@ -1,8 +1,10 @@
 "use server";
 
+import { signIn, signOut } from "@/auth";
 import prisma from "@/lib/prisma";
 import { put } from "@vercel/blob";
 import bcrypt from "bcrypt";
+import { AuthError } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -189,4 +191,27 @@ export async function createPost(formData: FormData) {
 
   revalidatePath("/dashboard");
   redirect("/dashboard");
+}
+
+export async function authenticate(
+  state: string | undefined,
+  formData: FormData,
+) {
+  try {
+    await signIn("credentials", formData);
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case "CredentialsSignin":
+          return "メールアドレスまたはパスワードが正しくありません。";
+        default:
+          return "エラーが発生しました。";
+      }
+    }
+    throw error;
+  }
+}
+export async function logout() {
+  await signOut();
+  redirect("/login");
 }

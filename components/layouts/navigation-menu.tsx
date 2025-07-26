@@ -1,5 +1,6 @@
 "use client";
 
+import { logout } from "@/lib/actions";
 import clsx from "clsx";
 import Image from "next/image";
 import Link from "next/link";
@@ -79,7 +80,7 @@ export default function NavigationMenu() {
           </Link>
         </div>
         <div className="py-1">
-          <form>
+          <form action={logout}>
             <button
               type="submit"
               className="block px-4 py-2 text-sm text-gray-700"
