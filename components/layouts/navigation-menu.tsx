@@ -4,10 +4,24 @@ import { logout } from "@/lib/actions";
 import clsx from "clsx";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
+type User = {
+  image: string | null;
+  name: string;
+  email: string;
+  description: string | null;
+};
 export default function NavigationMenu() {
   const [showMenu, setShowMenu] = useState(false);
+  const passname = usePathname();
+  const [user, setUser] = useState<User | null>(null);
+  useEffect(() => {
+    fetch("/api/me")
+      .then((res) => res.json())
+      .then((me) => setUser(me));
+  }, [passname]);
   return (
     <div className="relative inline-block sm:ms-6 sm:items-center">
       <button
@@ -15,15 +29,16 @@ export default function NavigationMenu() {
         className="my-6 inline-flex items-center rounded-md border border-transparent bg-white px-3 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none"
         onClick={() => setShowMenu(true)}
       >
-        <Image
-          className="mr-2 block aspect-square size-6 rounded-full object-cover"
-          src="/dogs/dog_1.jpg"
-          width={64}
-          height={64}
-          alt="user logo"
-        />
-        <div>user+1</div>
-
+        {user?.image && (
+          <Image
+            className="mr-2 block aspect-square size-6 rounded-full object-cover"
+            src={user.image}
+            width={64}
+            height={64}
+            alt="user logo"
+          />
+        )}
+        <div>{user?.name}</div>
         <div className="ms-1">
           <svg
             className="size-4 fill-current"
