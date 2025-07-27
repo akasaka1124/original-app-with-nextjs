@@ -173,7 +173,8 @@ export async function updateMe(formData: FormData) {
     where: { id: user.id },
     data,
   });
-
+  revalidatePath("/users");
+  revalidatePath("/posts");
   revalidatePath("/dashboard");
   redirect("/dashboard");
 }
