@@ -150,11 +150,15 @@ export async function updateMe(formData: FormData) {
   const user = await prisma.user.findFirstOrThrow({
     where: { email: currentEmail },
   });
-  const data = {
+  const data: {
+    name: string;
+    email: string;
+    description: string | null;
+    image?: string; // imageをオプショナルにする
+  } = {
     name: formData.get("name") as string,
     email: formData.get("email") as string,
     description: formData.get("description") as string | null,
-    image: formData.get("image") as string | null,
   };
   const imageFile = formData.get("image") as File;
   if (imageFile.size > 0) {
