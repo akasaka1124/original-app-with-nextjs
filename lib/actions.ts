@@ -1,6 +1,6 @@
 "use server";
 
-import { signIn, signOut } from "@/auth";
+import { auth, signIn, signOut } from "@/auth";
 import prisma from "@/lib/prisma";
 import { put } from "@vercel/blob";
 import bcrypt from "bcrypt";
@@ -120,14 +120,16 @@ export async function deletePost(id: string, _formData: FormData) {
 }
 
 export async function createComment(id: string, formData: FormData) {
-  const email = "user+1@example.com";
+  const session = await auth();
+  if (!session?.user?.email) throw new Error("Invalid Request");
+  const email = session.user.email;
   const user = await prisma.user.findFirstOrThrow({
     where: { email },
   });
   const text = formData.get("text") as string;
 
   const post = await prisma.post.findFirstOrThrow({
-    where: { id, userId: user.id },
+    where: { id },
   });
 
   await prisma.comment.create({
@@ -142,14 +144,17 @@ export async function createComment(id: string, formData: FormData) {
 }
 
 export async function updateMe(formData: FormData) {
-  const currentEmail = "user+1@example.com";
+  const session = await auth();
+  if (!session?.user?.email) throw new Error("Invalid Request");
+  const currentEmail = session.user.email;
   const user = await prisma.user.findFirstOrThrow({
     where: { email: currentEmail },
   });
   const data = {
     name: formData.get("name") as string,
-    description: formData.get("description") as string,
-    image: user.image,
+    email: formData.get("email") as string,
+    description: formData.get("description") as string | null,
+    image: formData.get("image") as string | null,
   };
   const imageFile = formData.get("image") as File;
   if (imageFile.size > 0) {
@@ -170,7 +175,9 @@ export async function updateMe(formData: FormData) {
 }
 
 export async function createPost(formData: FormData) {
-  const email = "user+1@example.com";
+  const session = await auth();
+  if (!session?.user?.email) throw new Error("Invalid Request");
+  const email = session.user.email;
   const caption = formData.get("caption") as string;
   const imageFile = formData.get("image") as File;
   const blob = await put(imageFile.name, imageFile, {
