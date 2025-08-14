@@ -1,6 +1,7 @@
 import BreadCrumbs from "@/components/layouts/bread-crumbs";
 import IconSkeleton from "@/components/skeletons/icon-skeleton";
 import UserSkeleton from "@/components/skeletons/user-skeleton";
+import { getFollowCounts } from "@/lib/actions";
 import { fetchDashboard } from "@/lib/apis";
 import Image from "next/image";
 import Link from "next/link";
@@ -19,6 +20,7 @@ export default function Page() {
 
 async function Dashboard() {
   const user = await fetchDashboard();
+  const followCounts = user.id ? await getFollowCounts(user.id) : { followersCount: 0, followingCount: 0 };
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mt-8 flex bg-white p-4">
@@ -46,13 +48,31 @@ async function Dashboard() {
               自己紹介を入力しましょう 🐾🐾🐾
             </p>
           )}
-          <div className="mt-4 flex">
+          <div className="mt-4 flex flex-wrap items-center gap-3">
             <p className="text-sm font-semibold text-black">
               投稿{user.posts.length}件
             </p>
+            {user.id && (
+              <>
+                <Link
+                  href={`/users/${user.id}/followers`}
+                  className="text-sm font-semibold text-black hover:underline"
+                >
+                  フォロワー{followCounts.followersCount}人
+                </Link>
+                <Link
+                  href={`/users/${user.id}/following`}
+                  className="text-sm font-semibold text-black hover:underline"
+                >
+                  フォロー中{followCounts.followingCount}人
+                </Link>
+              </>
+            )}
+          </div>
+          <div className="mt-2">
             <Link
               href="/profile"
-              className="ml-2 rounded border px-2 text-sm font-semibold text-black"
+              className="inline-block rounded border px-3 py-1 text-sm font-semibold text-black hover:bg-gray-50"
             >
               プロフィールを編集
             </Link>

@@ -1,6 +1,8 @@
 import BreadCrumbs from "@/components/layouts/bread-crumbs";
 import UsersSkeleton from "@/components/skeletons/users-skeleton";
-import { fetchUsers } from "@/lib/apis";
+import FollowButton from "@/components/ui/follow-button";
+import { getFollowStatus } from "@/lib/actions";
+import { fetchMe, fetchUsers } from "@/lib/apis";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -17,14 +19,30 @@ export default function Page() {
 }
 
 async function Users() {
-  const users = await fetchUsers();
+  const [users, currentUser] = await Promise.all([
+    fetchUsers(),
+    fetchMe().catch(() => null),
+  ]);
+
+  const followStatuses = await Promise.all(
+    users.map(async (user) => ({
+      userId: user.id,
+      isFollowing: currentUser ? await getFollowStatus(user.id) : false,
+    }))
+  );
+
+  const followStatusMap = Object.fromEntries(
+    followStatuses.map((status) => [status.userId, status.isFollowing])
+  );
+
   return (
     <div className="mx-auto my-8 max-w-5xl bg-white shadow-sm">
       <div className="grid grid-cols-1 gap-1  lg:grid-cols-2">
         {users.map((user) => {
+          const isOwnProfile = currentUser?.id === user.id;
           return (
-            <Link href={`/users/${user.id}`} key={user.id}>
-              <div className="flex bg-white p-4">
+            <div key={user.id} className="flex items-center justify-between bg-white p-4">
+              <Link href={`/users/${user.id}`} className="flex flex-1">
                 {user.image && (
                   <Image
                     className="block aspect-[1/1] size-12 rounded-full object-cover"
@@ -50,8 +68,15 @@ async function Users() {
                     </div>
                   </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+              {currentUser && (
+                <FollowButton
+                  targetUserId={user.id}
+                  initialIsFollowing={followStatusMap[user.id]}
+                  isOwnProfile={isOwnProfile}
+                />
+              )}
+            </div>
           );
         })}
       </div>

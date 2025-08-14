@@ -7,7 +7,7 @@ export async function fetchDashboard() {
   if (!session?.user?.email) throw new Error("Invalid Request");
   const email = session.user.email;
   try {
-    return await prisma.user.findFirstOrThrow({
+    const user = await prisma.user.findFirst({
       where: { email },
       select: {
         id: true,
@@ -21,6 +21,19 @@ export async function fetchDashboard() {
         },
       },
     });
+    
+    if (!user) {
+      // ユーザーが見つからない場合は、新規ユーザーとして扱う
+      return {
+        id: "",
+        name: session.user.name || "新規ユーザー",
+        image: session.user.image || null,
+        description: null,
+        posts: [],
+      };
+    }
+    
+    return user;
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch.");
@@ -144,7 +157,7 @@ export async function fetchMe() {
   if (!session?.user?.email) throw new Error("Invalid Request");
   const email = session.user.email;
   try {
-    return await prisma.user.findFirstOrThrow({
+    const user = await prisma.user.findFirst({
       where: { email },
       select: {
         id: true,
@@ -154,6 +167,13 @@ export async function fetchMe() {
         description: true,
       },
     });
+    
+    if (!user) {
+      // ユーザーが見つからない場合はエラーを投げる
+      throw new Error("User not found. Please register first.");
+    }
+    
+    return user;
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch Me.");

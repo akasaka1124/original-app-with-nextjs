@@ -227,3 +227,107 @@ export async function logout() {
   await signOut();
   redirect("/login");
 }
+
+export async function followUser(targetUserId: string) {
+  const session = await auth();
+  if (!session?.user?.email) {
+    throw new Error("認証が必要です");
+  }
+
+  const currentUser = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+
+  if (!currentUser) {
+    throw new Error("ユーザーが見つかりません");
+  }
+
+  if (currentUser.id === targetUserId) {
+    throw new Error("自分自身をフォローすることはできません");
+  }
+
+  try {
+    await prisma.follow.create({
+      data: {
+        followerId: currentUser.id,
+        followingId: targetUserId,
+      },
+    });
+    revalidatePath(`/users/${targetUserId}`);
+    revalidatePath(`/profile`);
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("Unique constraint")) {
+      throw new Error("すでにフォローしています");
+    }
+    throw error;
+  }
+}
+
+export async function unfollowUser(targetUserId: string) {
+  const session = await auth();
+  if (!session?.user?.email) {
+    throw new Error("認証が必要です");
+  }
+
+  const currentUser = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+
+  if (!currentUser) {
+    throw new Error("ユーザーが見つかりません");
+  }
+
+  try {
+    await prisma.follow.delete({
+      where: {
+        followerId_followingId: {
+          followerId: currentUser.id,
+          followingId: targetUserId,
+        },
+      },
+    });
+    revalidatePath(`/users/${targetUserId}`);
+    revalidatePath(`/profile`);
+  } catch (error) {
+    throw new Error("フォロー解除に失敗しました");
+  }
+}
+
+export async function getFollowStatus(targetUserId: string): Promise<boolean> {
+  const session = await auth();
+  if (!session?.user?.email) {
+    return false;
+  }
+
+  const currentUser = await prisma.user.findUnique({
+    where: { email: session.user.email },
+  });
+
+  if (!currentUser) {
+    return false;
+  }
+
+  const follow = await prisma.follow.findUnique({
+    where: {
+      followerId_followingId: {
+        followerId: currentUser.id,
+        followingId: targetUserId,
+      },
+    },
+  });
+
+  return !!follow;
+}
+
+export async function getFollowCounts(userId: string) {
+  const [followersCount, followingCount] = await Promise.all([
+    prisma.follow.count({
+      where: { followingId: userId },
+    }),
+    prisma.follow.count({
+      where: { followerId: userId },
+    }),
+  ]);
+
+  return { followersCount, followingCount };
+}
